@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}Pagamento - App Motoristas{% endblock %}
+
+{% block content %}
+<div class="mb-5 text-center">
+    <h2><i class="bi bi-credit-card"></i> Finalizar Assinatura</h2>
+    <p class="lead text-muted">Escolha a forma de pagamento</p>
+</div>
+
+<!-- Resumo do Plano -->
+<div class="row justify-content-center mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-primary">
+            <div class="card-body p-4 text-center">
+                <h4 class="mb-3">Plano {{ plano.nome }}</h4>
+                <h2 class="text-primary mb-0 checkout-price">
+                    <span class="checkout-price-value">R$ {{ "%.2f"|format(plano.preco) }}</span>
+                </h2>
+                <p class="text-muted">por {{ plano.periodo }}</p>
+                <hr>
+                <p class="mb-0 small text-muted">
+                    <i class="bi bi-shield-check"></i> Pagamento seguro e protegido
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Métodos de Pagamento -->
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <!-- Nav Tabs -->
+        <ul class="nav nav-pills mb-4 justify-content-center" id="paymentTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="credit-tab" data-bs-toggle="pill" 
+                        data-bs-target="#credit" type="button" role="tab">
+                    <i class="bi bi-credit-card"></i> Cartão de Crédito
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="debit-tab" data-bs-toggle="pill" 
+                        data-bs-target="#debit" type="button" role="tab">
+                    <i class="bi bi-credit-card-2-front"></i> Cartão de Débito
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pix-tab" data-bs-toggle="pill" 
+                        data-bs-target="#pix" type="button" role="tab">
+                    <i class="bi bi-qr-code"></i> PIX
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Contents -->
+        <div class="tab-content" id="paymentTabContent">
+            <!-- Cartão de Crédito -->
+            <div class="tab-pane fade show active" id="credit" role="tabpanel">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="mb-4"><i class="bi bi-credit-card"></i> Pagamento com Cartão de Crédito</h5>
+                        
+                        <form method="POST" action="{{ url_for('subscription.processar_pagamento') }}" id="creditForm">
+                            <input type="hidden" name="plano" value="{{ plano.id }}">
+                            <input type="hidden" name="metodo_pagamento" value="credit_card">
+                            
+                            <div class="mb-3">
+                                <label for="numero_cartao_credit" class="form-label">Número do Cartão</label>
+                                <input type="text" class="form-control" id="numero_cartao_credit" 
+                                       name="numero_cartao" placeholder="0000 0000 0000 0000" 
+                                       maxlength="19" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="nome_cartao_credit" class="form-label">Nome no Cartão</label>
+                                <input type="text" class="form-control" id="nome_cartao_credit" 
+                                       name="nome_cartao" placeholder="Nome como está no cartão" 
+                                       style="text-transform: uppercase;" required>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="validade_credit" class="form-label">Validade</label>
+                                    <input type="text" class="form-control" id="validade_credit" 
+                                           name="validade" placeholder="MM/AA" maxlength="5" required>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="cvv_credit" class="form-label">CVV</label>
+                                    <input type="text" class="form-control" id="cvv_credit" 
+                                           name="cvv" placeholder="123" maxlength="4" required>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-lock"></i> Pagar R$ {{ "%.2f"|format(plano.preco) }}
+                                </button>
+                                <a href="{{ url_for('subscription.planos') }}" class="btn btn-outline-secondary">
+                                    Voltar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cartão de Débito -->
+            <div class="tab-pane fade" id="debit" role="tabpanel">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="mb-4"><i class="bi bi-credit-card-2-front"></i> Pagamento com Cartão de Débito</h5>
+                        
+                        <form method="POST" action="{{ url_for('subscription.processar_pagamento') }}" id="debitForm">
+                            <input type="hidden" name="plano" value="{{ plano.id }}">
+                            <input type="hidden" name="metodo_pagamento" value="debit_card">
+                            
+                            <div class="mb-3">
+                                <label for="numero_cartao_debit" class="form-label">Número do Cartão</label>
+                                <input type="text" class="form-control" id="numero_cartao_debit" 
+                                       name="numero_cartao" placeholder="0000 0000 0000 0000" 
+                                       maxlength="19" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="nome_cartao_debit" class="form-label">Nome no Cartão</label>
+                                <input type="text" class="form-control" id="nome_cartao_debit" 
+                                       name="nome_cartao" placeholder="Nome como está no cartão" 
+                                       style="text-transform: uppercase;" required>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="validade_debit" class="form-label">Validade</label>
+                                    <input type="text" class="form-control" id="validade_debit" 
+                                           name="validade" placeholder="MM/AA" maxlength="5" required>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="cvv_debit" class="form-label">CVV</label>
+                                    <input type="text" class="form-control" id="cvv_debit" 
+                                           name="cvv" placeholder="123" maxlength="4" required>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> O valor será debitado imediatamente da sua conta.
+                            </div>
+                            
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-lock"></i> Pagar R$ {{ "%.2f"|format(plano.preco) }}
+                                </button>
+                                <a href="{{ url_for('subscription.planos') }}" class="btn btn-outline-secondary">
+                                    Voltar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PIX -->
+            <div class="tab-pane fade" id="pix" role="tabpanel">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4 text-center">
+                        <h5 class="mb-4"><i class="bi bi-qr-code"></i> Pagamento via PIX</h5>
+                        
+                        <div class="alert alert-success">
+                            <i class="bi bi-lightning-charge"></i> 
+                            <strong>Aprovação instantânea!</strong> Seu acesso é liberado assim que o pagamento for confirmado.
+                        </div>
+                        
+                        <form method="POST" action="{{ url_for('subscription.processar_pagamento') }}">
+                            <input type="hidden" name="plano" value="{{ plano.id }}">
+                            <input type="hidden" name="metodo_pagamento" value="pix">
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="bi bi-qr-code"></i> Gerar Código PIX - R$ {{ "%.2f"|format(plano.preco) }}
+                                </button>
+                                <a href="{{ url_for('subscription.planos') }}" class="btn btn-outline-secondary">
+                                    Voltar
+                                </a>
+                            </div>
+                        </form>
+                        
+                        <p class="text-muted small mt-4">
+                            Você será redirecionado para uma página com o QR Code e código PIX
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Segurança -->
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8">
+        <div class="text-center text-muted">
+            <p class="mb-2">
+                <i class="bi bi-shield-check text-success"></i> 
+                <strong>Seus dados estão seguros</strong>
+            </p>
+            <p class="small mb-0">
+                Utilizamos criptografia de ponta a ponta para proteger suas informações de pagamento
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Máscara para número do cartão
+document.querySelectorAll('[id^="numero_cartao"]').forEach(input => {
+    input.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\s/g, '');
+        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+        e.target.value = formattedValue;
+    });
+});
+
+// Máscara para validade
+document.querySelectorAll('[id^="validade"]').forEach(input => {
+    input.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.slice(0, 2) + '/' + value.slice(2, 4);
+        }
+        e.target.value = value;
+    });
+});
+
+// Permitir apenas números no CVV
+document.querySelectorAll('[id^="cvv"]').forEach(input => {
+    input.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+});
+
+// Uppercase no nome
+document.querySelectorAll('[id^="nome_cartao"]').forEach(input => {
+    input.addEventListener('input', function(e) {
+        e.target.value = e.target.value.toUpperCase();
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}App Motoristas - Gerencie suas Corridas{% endblock %}
+
+{% block main_content %}
+<div class="text-center py-5">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-4">Gerencie suas corridas de forma profissional</h1>
+        <p class="lead text-muted mb-5">
+            Dashboard completo, estatísticas detalhadas e controle total das suas receitas
+        </p>
+        
+        <div class="d-flex gap-3 justify-content-center mb-5">
+            <a href="{{ url_for('auth.cadastro') }}" class="btn btn-primary btn-lg px-5">
+                Começar Agora
+            </a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg px-5">
+                Já tenho conta
+            </a>
+        </div>
+
+        <div class="mb-5">
+            <h5 class="text-primary mb-4"><i class="bi bi-bar-chart-line"></i> Evolua seus resultados com o plano certo</h5>
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card h-100 border-secondary shadow-sm">
+                        <div class="card-body">
+                            <h6 class="text-secondary mb-2">Gratuito</h6>
+                            <p class="text-muted mb-0">Entrada prática para registrar corridas e criar disciplina de gestão.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card h-100 border-primary shadow-sm">
+                        <div class="card-body">
+                            <h6 class="text-primary mb-2">Mensal</h6>
+                            <p class="text-muted mb-0">Visão operacional para acompanhar plataforma e rotina da semana.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card h-100 border-warning shadow-sm">
+                        <div class="card-body">
+                            <h6 class="text-warning mb-2">Trimestral</h6>
+                            <p class="text-muted mb-0">Foco em eficiência financeira com análise de distribuição de custos.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card h-100 border-success shadow-sm">
+                        <div class="card-body">
+                            <h6 class="text-success mb-2">Anual</h6>
+                            <p class="text-muted mb-0">Visão estratégica de longo prazo para identificar os horários de maior retorno.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Seção Quem Somos -->
+        <div class="row mt-5 mb-5">
+            <div class="col-12">
+                <div class="card border-0 shadow">
+                    <div class="card-body p-5">
+                        <h2 class="text-center mb-4">
+                            <i class="bi bi-info-circle text-primary"></i> Quem Somos
+                        </h2>
+                        <p class="lead text-center text-muted mb-4">
+                            A solução completa para motoristas de aplicativo
+                        </p>
+                        <p class="text-muted" style="line-height: 1.8;">
+                            O <strong>App Motoristas</strong> nasceu da necessidade real de motoristas de aplicativo 
+                            que precisam gerenciar suas corridas de forma profissional. Sabemos que trabalhar como 
+                            motorista exige organização, controle financeiro e análise constante de desempenho.
+                        </p>
+                        <p class="text-muted" style="line-height: 1.8;">
+                            Nossa plataforma foi desenvolvida para simplificar sua rotina, oferecendo ferramentas 
+                            intuitivas de registro de corridas, dashboards com gráficos interativos, estatísticas 
+                            detalhadas por plataforma e período, além de cálculos automáticos de receita líquida 
+                            considerando custos operacionais.
+                        </p>
+                        <p class="text-muted mb-4" style="line-height: 1.8;">
+                            Com opção <strong>gratuita</strong> e planos acessíveis a partir de <strong>R$ 11,90/mês</strong>, você tem acesso a 
+                            uma ferramenta profissional que ajuda a tomar decisões mais inteligentes sobre seu 
+                            trabalho, identificar os melhores horários e plataformas, e maximizar seus lucros.
+                        </p>
+                        <div class="text-center">
+                            <p class="mb-2"><strong>Nossa Missão:</strong></p>
+                            <p class="text-muted fst-italic">
+                                "Capacitar motoristas de aplicativo com tecnologia acessível para gestão 
+                                profissional de suas atividades e crescimento sustentável de seus negócios."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recursos -->
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="bi bi-speedometer2 text-primary" style="font-size: 48px;"></i>
+                        </div>
+                        <h4>Dashboard Intuitivo</h4>
+                        <p class="text-muted">Visualize suas estatísticas e acompanhe seu desempenho em tempo real</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="bi bi-graph-up-arrow text-success" style="font-size: 48px;"></i>
+                        </div>
+                        <h4>Relatórios Detalhados</h4>
+                        <p class="text-muted">Análises por plataforma, período e métricas de desempenho</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="bi bi-currency-dollar text-warning" style="font-size: 48px;"></i>
+                        </div>
+                        <h4>Controle Financeiro</h4>
+                        <p class="text-muted">Calcule automaticamente receita líquida, custos e lucros</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

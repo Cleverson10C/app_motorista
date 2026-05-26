@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Esqueci Minha Senha - App Motoristas{% endblock %}
+
+{% block main_content %}
+<div class="container">
+    <div class="row justify-content-center" style="margin-top: 100px;">
+        <div class="col-md-5">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-key text-warning" style="font-size: 48px;"></i>
+                        <h3 class="mt-3">Esqueci Minha Senha</h3>
+                        <p class="text-muted">Digite seu email para resetar sua senha</p>
+                    </div>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-envelope"></i>
+                                </span>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       placeholder="seu@email.com" required autofocus>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mb-3">
+                            <button type="submit" class="btn btn-warning btn-lg">
+                                <i class="bi bi-arrow-clockwise"></i> Resetar Senha
+                            </button>
+                        </div>
+
+                        <div class="text-center">
+                            <a href="{{ url_for('auth.login') }}" class="text-decoration-none">
+                                <i class="bi bi-arrow-left"></i> Voltar para o login
+                            </a>
+                        </div>
+                    </form>
+
+                    <hr class="my-4">
+
+                    {% if reset_demo_enabled %}
+                    <div class="alert alert-warning mb-0">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Modo Demonstração ativo:</strong> a senha será resetada para o valor configurado
+                        em <code>PASSWORD_RESET_DEMO_PASSWORD</code>.
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle"></i>
+                        Em produção, este fluxo deve enviar um link com token por email.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

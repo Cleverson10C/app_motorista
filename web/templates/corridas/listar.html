@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Minhas Corridas - App Motoristas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-car-front"></i> Minhas Corridas</h2>
+    <a href="{{ url_for('corridas.nova') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Nova Corrida
+    </a>
+</div>
+
+{% if history_limited %}
+<div class="alert alert-warning">
+    <i class="bi bi-lock"></i>
+    No plano gratuito, você visualiza apenas os últimos {{ history_limit_days }} dias de histórico.
+    <a href="{{ url_for('subscription.planos') }}" class="alert-link">Fazer upgrade</a>.
+</div>
+{% endif %}
+
+<!-- Filtros -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Período</label>
+                <select name="periodo" class="form-select" onchange="this.form.submit()">
+                    <option value="">Todos</option>
+                    <option value="hoje" {% if periodo_selecionado == 'hoje' %}selected{% endif %}>Hoje</option>
+                    <option value="semana" {% if periodo_selecionado == 'semana' %}selected{% endif %}>Última Semana</option>
+                    <option value="mes" {% if periodo_selecionado == 'mes' %}selected{% endif %}>Último Mês</option>
+                </select>
+            </div>
+            
+            <div class="col-md-4">
+                <label class="form-label">Plataforma</label>
+                <select name="plataforma" class="form-select" onchange="this.form.submit()">
+                    <option value="">Todas</option>
+                    {% for plat in plataformas %}
+                    <option value="{{ plat }}" {% if plataforma_selecionada == plat %}selected{% endif %}>{{ plat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-4 d-flex align-items-end">
+                <a href="{{ url_for('corridas.listar') }}" class="btn btn-outline-secondary">Limpar Filtros</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabela de Corridas -->
+{% if corridas %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Plataforma</th>
+                        <th>Origem → Destino</th>
+                        <th class="text-end">Distância</th>
+                        <th class="text-end">Valor Bruto</th>
+                        <th class="text-end">Receita Líquida</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for corrida in corridas %}
+                    <tr>
+                        <td>{{ corrida.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            <span class="badge bg-primary">{{ corrida.platform or '-' }}</span>
+                        </td>
+                        <td>
+                            <small class="text-muted">
+                                {{ corrida.origin or '-' }} → {{ corrida.destination or '-' }}
+                            </small>
+                        </td>
+                        <td class="text-end">{{ "%.1f"|format(corrida.distance_km or 0) }} km</td>
+                        <td class="text-end">R$ {{ "%.2f"|format(corrida.gross_amount or 0) }}</td>
+                        <td class="text-end">
+                            <strong class="text-success">R$ {{ "%.2f"|format(corrida.net_revenue()) }}</strong>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('corridas.editar', corrida_id=corrida.id) }}" 
+                                   class="btn btn-outline-primary" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                {% if can_delete_rides %}
+                                <form method="POST" action="{{ url_for('corridas.deletar', corrida_id=corrida.id) }}" 
+                                      class="d-inline" onsubmit="return confirm('Tem certeza que deseja deletar esta corrida?')">
+                                    <button type="submit" class="btn btn-outline-danger" title="Deletar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                                {% else %}
+                                <button type="button" class="btn btn-outline-secondary" title="Exclusão indisponível no plano gratuito" disabled>
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="bi bi-inbox text-muted" style="font-size: 64px;"></i>
+    <h4 class="mt-3 text-muted">Nenhuma corrida encontrada</h4>
+    <p class="text-muted">Comece registrando sua primeira corrida!</p>
+    <a href="{{ url_for('corridas.nova') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Nova Corrida
+    </a>
+</div>
+{% endif %}
+{% endblock %}

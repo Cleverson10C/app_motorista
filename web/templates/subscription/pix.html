@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Pagamento PIX - App Motoristas{% endblock %}
+
+{% block content %}
+<div class="mb-5 text-center">
+    <h2><i class="bi bi-qr-code"></i> Pagamento via PIX</h2>
+    <p class="lead text-muted">Escaneie o QR Code ou copie o código</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <!-- Resumo do Pedido -->
+        <div class="card shadow-sm border-success mb-4">
+            <div class="card-body p-4 text-center">
+                <h5 class="text-muted mb-2">Plano {{ plano.nome }}</h5>
+                <h2 class="text-success mb-0">R$ {{ "%.2f"|format(plano.preco) }}</h2>
+                <hr>
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-clock"></i> Aguardando pagamento...
+                </div>
+            </div>
+        </div>
+
+        <!-- QR Code -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body p-4 text-center">
+                <h5 class="mb-4"><i class="bi bi-camera"></i> Escaneie o QR Code</h5>
+                
+                <!-- QR Code Real -->
+                <div class="bg-light p-4 rounded mb-3" style="display: inline-block;">
+                    <img src="data:image/png;base64,{{ qr_code_img }}" 
+                         alt="QR Code PIX" 
+                         style="width: 250px; height: 250px;">
+                </div>
+                
+                <p class="text-muted mb-0">
+                    Abra o app do seu banco e escaneie o código acima
+                </p>
+            </div>
+        </div>
+
+        <!-- Código PIX Copia e Cola -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h5 class="mb-3"><i class="bi bi-code"></i> Código PIX Copia e Cola</h5>
+                
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="codigoPix" 
+                           value="{{ codigo_pix }}" readonly>
+                    <button class="btn btn-primary" type="button" onclick="copiarCodigo()">
+                        <i class="bi bi-clipboard"></i> Copiar
+                    </button>
+                </div>
+                
+                <div class="alert alert-success d-none" id="copiado">
+                    <i class="bi bi-check-circle"></i> Código copiado com sucesso!
+                </div>
+                
+                <ol class="small text-muted mb-0">
+                    <li>Copie o código acima</li>
+                    <li>Abra o aplicativo do seu banco</li>
+                    <li>Entre na opção PIX</li>
+                    <li>Escolha "Pix Copia e Cola"</li>
+                    <li>Cole o código e confirme o pagamento</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Informações Importantes -->
+        <div class="card shadow-sm border-warning mb-4">
+            <div class="card-body p-4">
+                <h5 class="mb-3"><i class="bi bi-info-circle"></i> Importante</h5>
+                
+                <ul class="mb-0">
+                    <li class="mb-2">
+                        <strong>Validade:</strong> Este código PIX expira em 30 minutos
+                    </li>
+                    <li class="mb-2">
+                        <strong>Confirmação:</strong> Seu acesso será liberado automaticamente após a confirmação do pagamento
+                    </li>
+                    <li class="mb-2">
+                        <strong>Notificação:</strong> Você receberá um email assim que o pagamento for confirmado
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="d-grid gap-2">
+            <button type="button" class="btn btn-success btn-lg" onclick="verificarPagamento()">
+                <i class="bi bi-arrow-clockwise"></i> Já paguei, verificar status
+            </button>
+            
+            {% if usando_asaas %}
+            <div class="alert alert-warning mb-0">
+                <strong><i class="bi bi-info-circle"></i> Modo Teste (Sandbox):</strong><br>
+                Acesse <a href="https://sandbox.asaas.com" target="_blank" class="alert-link">sandbox.asaas.com</a> 
+                → Vá em <strong>Cobranças</strong> → Encontre esta cobrança → Marque como <strong>"Recebida"</strong> 
+                para simular o pagamento
+            </div>
+            {% endif %}
+            
+            <a href="{{ url_for('subscription.planos') }}" class="btn btn-outline-secondary">
+                Cancelar e voltar
+            </a>
+        </div>
+
+        <!-- Status de Verificação -->
+        <div class="alert alert-info d-none mt-3" id="verificando">
+            <div class="d-flex align-items-center">
+                <div class="spinner-border spinner-border-sm me-2" role="status">
+                    <span class="visually-hidden">Verificando...</span>
+                </div>
+                Verificando pagamento...
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Instruções Adicionais -->
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="mb-3"><i class="bi bi-question-circle"></i> Como pagar com PIX?</h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="text-center">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px;">
+                                <i class="bi bi-phone text-primary" style="font-size: 30px;"></i>
+                            </div>
+                            <h6 class="mt-2">1. Abra seu app</h6>
+                            <p class="small text-muted mb-0">Banco ou carteira digital</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="text-center">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px;">
+                                <i class="bi bi-qr-code text-primary" style="font-size: 30px;"></i>
+                            </div>
+                            <h6 class="mt-2">2. Escaneie ou cole</h6>
+                            <p class="small text-muted mb-0">Use QR Code ou código</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="text-center">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px;">
+                                <i class="bi bi-check-circle text-primary" style="font-size: 30px;"></i>
+                            </div>
+                            <h6 class="mt-2">3. Confirme</h6>
+                            <p class="small text-muted mb-0">Verifique e confirme</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="text-center">
+                            <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px;">
+                                <i class="bi bi-rocket text-success" style="font-size: 30px;"></i>
+                            </div>
+                            <h6 class="mt-2">4. Pronto!</h6>
+                            <p class="small text-muted mb-0">Acesso liberado</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copiarCodigo() {
+    const codigo = document.getElementById('codigoPix');
+    codigo.select();
+    codigo.setSelectionRange(0, 99999); // Para mobile
+    
+    navigator.clipboard.writeText(codigo.value).then(() => {
+        const alerta = document.getElementById('copiado');
+        alerta.classList.remove('d-none');
+        
+        setTimeout(() => {
+            alerta.classList.add('d-none');
+        }, 3000);
+    });
+}
+
+function verificarPagamento() {
+    const verificando = document.getElementById('verificando');
+    verificando.classList.remove('d-none');
+    
+    // Chama a API para verificar o pagamento
+    fetch('{{ url_for("subscription.verificar_pagamento_pix") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        verificando.classList.add('d-none');
+        
+        if (data.status === 'success') {
+            alert('✅ ' + data.message);
+            window.location.href = data.redirect;
+        } else if (data.status === 'pending') {
+            alert('⏳ ' + data.message);
+        } else {
+            alert('❌ ' + data.message);
+        }
+    })
+    .catch(error => {
+        verificando.classList.add('d-none');
+        alert('Erro ao verificar pagamento. Tente novamente.');
+        console.error('Erro:', error);
+    });
+}
+
+// Auto-verificação a cada 10 segundos
+{% if usando_asaas %}
+let verificacaoInterval = setInterval(() => {
+    fetch('{{ url_for("subscription.verificar_pagamento_pix") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            clearInterval(verificacaoInterval);
+            alert('✅ Pagamento confirmado automaticamente!');
+            window.location.href = data.redirect;
+        }
+    })
+    .catch(error => console.error('Erro na verificação automática:', error));
+}, 10000); // Verifica a cada 10 segundos
+{% endif %}
+</script>
+{% endblock %}

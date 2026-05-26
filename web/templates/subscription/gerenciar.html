@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Assinatura - App Motoristas{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2><i class="bi bi-credit-card"></i> Minha Assinatura</h2>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div>
+                        <h4>Plano 
+                            {% if subscription.plan == 'monthly' %}Mensal
+                            {% elif subscription.plan == 'quarterly' %}Trimestral
+                            {% else %}Anual{% endif %}
+                        </h4>
+                        <p class="text-muted mb-0">
+                            {% if subscription.cancel_at_period_end %}
+                                <span class="badge bg-warning">
+                                    <i class="bi bi-clock-history"></i> Acesso até {{ subscription.current_period_end.strftime('%d/%m/%Y') }}
+                                </span>
+                            {% elif subscription.status == 'active' %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle"></i> Ativo e Renovando
+                                </span>
+                            {% elif subscription.status == 'past_due' %}
+                                <span class="badge bg-warning">Pagamento Pendente</span>
+                            {% else %}
+                                <span class="badge bg-danger">Cancelado</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <div class="text-end">
+                        <h3 class="mb-0">
+                            {% if subscription.plan == 'monthly' %}
+                                R$ 11,90
+                            {% elif subscription.plan == 'quarterly' %}
+                                R$ 34,90
+                            {% else %}
+                                R$ 99,90
+                            {% endif %}
+                        </h3>
+                        <p class="text-muted mb-0">
+                            {% if subscription.plan == 'monthly' %}/mês
+                            {% elif subscription.plan == 'quarterly' %}/trimestre
+                            {% else %}/ano{% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="mb-4">
+                    <h5>Informações da Assinatura</h5>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6 mb-3">
+                            <p class="text-muted mb-1">Data de Início</p>
+                            <p class="fw-bold mb-0">{{ subscription.created_at.strftime('%d/%m/%Y') }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <p class="text-muted mb-1">Próxima Cobrança</p>
+                            <p class="fw-bold mb-0">
+                                {% if subscription.current_period_end %}
+                                    {{ subscription.current_period_end.strftime('%d/%m/%Y') }}
+                                    <small class="text-muted">({{ dias_restantes }} dias)</small>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <p class="text-muted mb-1">Gateway de Pagamento</p>
+                            <p class="fw-bold mb-0">{{ subscription.gateway|capitalize }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <p class="text-muted mb-1">Status do Cancelamento</p>
+                            <p class="fw-bold mb-0">
+                                {% if subscription.cancel_at_period_end %}
+                                    <span class="text-warning">
+                                        <i class="bi bi-exclamation-triangle"></i> Cancelamento Agendado
+                                    </span>
+                                {% else %}
+                                    <span class="text-success">Ativa</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if subscription.cancel_at_period_end %}
+                <div class="alert alert-warning border-warning">
+                    <h5 class="alert-heading"><i class="bi bi-clock-history"></i> Cancelamento Agendado</h5>
+                    <p class="mb-2">Sua assinatura foi programada para cancelar em:</p>
+                    <h4 class="mb-2">{{ subscription.current_period_end.strftime('%d/%m/%Y às %H:%M') }}</h4>
+                    <hr>
+                    <p class="mb-0">
+                        <i class="bi bi-shield-check text-success"></i> 
+                        <strong>Fique tranquilo!</strong> Você continuará tendo acesso completo a todos os recursos 
+                        por mais <strong>{{ dias_restantes }} dias</strong>. Após essa data, o acesso será encerrado 
+                        e não haverá mais cobranças.
+                    </p>
+                </div>
+                
+                <div class="d-grid">
+                    <form method="POST" action="{{ url_for('subscription.reativar') }}">
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            <i class="bi bi-arrow-clockwise"></i> Cancelar o Cancelamento (Continuar Assinando)
+                        </button>
+                    </form>
+                    <p class="text-center text-muted small mt-2">
+                        Mudou de ideia? Clique acima para voltar a renovar automaticamente.
+                    </p>
+                </div>
+                {% elif subscription.status == 'active' %}
+                <div class="alert alert-success border-success">
+                    <h5 class="alert-heading"><i class="bi bi-check-circle"></i> Assinatura Ativa</h5>
+                    <p class="mb-0">
+                        Sua assinatura está ativa e renovará automaticamente em 
+                        <strong>{{ subscription.current_period_end.strftime('%d/%m/%Y') }}</strong> 
+                        ({{ dias_restantes }} dias).
+                    </p>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <form method="POST" action="{{ url_for('subscription.cancelar') }}">
+                        <button type="submit" class="btn btn-outline-warning w-100" 
+                                onclick="return confirm('Deseja agendar o cancelamento?\n\n✓ Você manterá acesso até {{ data_fim_formatada }}\n✓ Não haverá cobranças após essa data\n✓ Poderá reativar a qualquer momento')">
+                            <i class="bi bi-pause-circle"></i> Cancelar no Final do Período
+                        </button>
+                    </form>
+                    <p class="text-center text-muted small">
+                        Recomendado: Você mantém acesso até o fim do período pago
+                    </p>
+                    
+                    <hr class="my-2">
+                    
+                    <form method="POST" action="{{ url_for('subscription.cancelar_imediato') }}">
+                        <button type="submit" class="btn btn-outline-danger w-100" 
+                                onclick="return confirm('⚠️ ATENÇÃO: Cancelamento Imediato!\n\n✗ Você perderá o acesso AGORA\n✗ Os dias restantes serão perdidos\n✗ Não haverá reembolso\n\nTem certeza absoluta?')">
+                            <i class="bi bi-x-circle"></i> Cancelar Imediatamente (Perder Acesso)
+                        </button>
+                    </form>
+                    <p class="text-center text-danger small">
+                        ⚠️ Não recomendado: Você perde os dias já pagos
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Benefícios Inclusos</h5>
+                <ul class="list-unstyled mt-3">
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Dashboard completo</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Registros ilimitados</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Estatísticas detalhadas</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Gráficos interativos</li>
+                    <li class="mb-2">
+                        {% if recursos_plano.exportacao_relatorios %}
+                            <i class="bi bi-check-circle-fill text-success"></i> Exportação de relatórios
+                        {% else %}
+                            <i class="bi bi-x-circle-fill text-muted"></i> Exportação de relatórios (Trimestral+)
+                        {% endif %}
+                    </li>
+                    <li class="mb-2">
+                        {% if recursos_plano.analise_comparativa %}
+                            <i class="bi bi-check-circle-fill text-success"></i> Análises comparativas
+                        {% else %}
+                            <i class="bi bi-x-circle-fill text-muted"></i> Análises comparativas (Trimestral+)
+                        {% endif %}
+                    </li>
+                    <li class="mb-2">
+                        {% if recursos_plano.early_access_features %}
+                            <i class="bi bi-check-circle-fill text-success"></i> Novos recursos primeiro
+                        {% else %}
+                            <i class="bi bi-x-circle-fill text-muted"></i> Novos recursos primeiro (Anual)
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Precisa de Ajuda?</h5>
+                <p class="small text-muted">Abra um chamado no canal disponível no seu plano.</p>
+                <a
+                    href="{{ url_for('subscription.suporte', nivel='vip' if recursos_plano.vip_support_24_7 else ('priority' if recursos_plano.priority_support else 'email')) }}"
+                    class="btn btn-outline-primary btn-sm w-100"
+                >
+                    <i class="bi bi-headset"></i> Abrir Suporte
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,467 @@
+:root {
+    --bg-app: #f7f9ff;
+    --bg-surface: #ffffff;
+    --bg-sidebar-top: #11244d;
+    --bg-sidebar-bottom: #1e3f8f;
+    --bg-public-top: #f3f7ff;
+    --bg-public-bottom: #ffffff;
+    --text-strong: #1a2642;
+    --text-soft: #5f6f8f;
+    --brand-primary: #ff7a1a;
+    --brand-primary-strong: #e1640b;
+    --brand-accent: #1e3f8f;
+    --brand-accent-strong: #153171;
+    --line-soft: #d7e0ef;
+    --shadow-soft: 0 12px 30px rgba(18, 24, 38, 0.08);
+    --shadow-hover: 0 18px 36px rgba(18, 24, 38, 0.12);
+}
+
+html {
+    font-size: 15px;
+}
+
+body {
+    font-family: "Manrope", "Segoe UI", sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: var(--text-strong);
+    background: var(--bg-app);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.navbar-brand {
+    font-family: "Space Grotesk", "Manrope", sans-serif;
+    letter-spacing: 0.01em;
+}
+
+h1 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+h2 {
+    font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+}
+
+h3 {
+    font-size: clamp(1.2rem, 2vw, 1.45rem);
+}
+
+h4 {
+    font-size: clamp(1.08rem, 1.8vw, 1.25rem);
+}
+
+h5 {
+    font-size: clamp(0.98rem, 1.5vw, 1.1rem);
+}
+
+.shell-public {
+    background:
+        radial-gradient(circle at 14% 8%, rgba(30, 63, 143, 0.12), transparent 34%),
+        radial-gradient(circle at 84% 12%, rgba(255, 122, 26, 0.08), transparent 30%),
+        linear-gradient(180deg, var(--bg-public-top), var(--bg-public-bottom));
+    min-height: 100vh;
+}
+
+.navbar-public {
+    background: linear-gradient(90deg, #11244d, #1e3f8f);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.navbar-public .nav-link {
+    color: rgba(255, 255, 255, 0.78);
+    font-weight: 600;
+}
+
+.navbar-public .nav-link:hover {
+    color: #ffffff;
+}
+
+.sidebar {
+    background: linear-gradient(180deg, var(--bg-sidebar-top), var(--bg-sidebar-bottom));
+    min-height: 100vh;
+    box-shadow: 4px 0 28px rgba(15, 23, 36, 0.2);
+    color: #ffffff;
+    transition: all 0.24s ease;
+}
+
+.sidebar h1,
+.sidebar h2,
+.sidebar h3,
+.sidebar h4,
+.sidebar h5,
+.sidebar h6,
+.sidebar p,
+.sidebar .small {
+    color: #ffffff;
+}
+
+.sidebar .text-white-50 {
+    color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.sidebar-user-meta {
+    max-width: 100%;
+}
+
+.sidebar-user-name,
+.sidebar-user-email {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-user-name {
+    font-weight: 700;
+}
+
+#mainContent {
+    transition: all 0.24s ease;
+}
+
+body.sidebar-collapsed #appSidebar {
+    display: none !important;
+}
+
+body.sidebar-collapsed #mainContent {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+.sidebar-toggle-btn {
+    border-width: 1px;
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    border-radius: 10px;
+    margin: 5px 0;
+    padding: 11px 14px;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background-color: rgba(255, 122, 26, 0.24);
+    color: #ffffff;
+    transform: translateX(4px);
+}
+
+.card {
+    border: 1px solid var(--line-soft);
+    border-radius: 14px;
+    box-shadow: 0 10px 24px rgba(18, 24, 38, 0.06);
+    transition: transform 0.24s ease, box-shadow 0.24s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+}
+
+.stat-card {
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 14px;
+    border: 1px solid var(--line-soft);
+}
+
+.stat-card .icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.stat-card h3,
+.stat-card h4 {
+    font-family: "Manrope", "Segoe UI", sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+    line-height: 1.3;
+    display: inline-block;
+    padding-top: 2px;
+    overflow: visible;
+}
+
+.metric-money {
+    font-family: "Manrope", "Segoe UI", sans-serif;
+    font-weight: 800;
+    line-height: 1.3;
+    display: inline-block;
+    padding-top: 2px;
+    white-space: nowrap;
+}
+
+.cost-form-label {
+    font-size: 0.82rem;
+    white-space: nowrap;
+    margin-bottom: 0.42rem;
+}
+
+
+.btn {
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 700;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background-color: var(--brand-primary);
+    border-color: var(--brand-primary);
+    box-shadow: 0 10px 22px rgba(255, 122, 26, 0.28);
+}
+
+.btn-primary:hover {
+    background-color: var(--brand-primary-strong);
+    border-color: var(--brand-primary-strong);
+    box-shadow: 0 14px 24px rgba(255, 122, 26, 0.35);
+}
+
+.btn-success {
+    background-color: var(--brand-accent);
+    border-color: var(--brand-accent);
+}
+
+.btn-success:hover {
+    background-color: var(--brand-accent-strong);
+    border-color: var(--brand-accent-strong);
+}
+
+.btn-outline-primary {
+    border-color: var(--brand-accent);
+    color: var(--brand-accent);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--brand-accent);
+    border-color: var(--brand-accent);
+}
+
+.text-muted {
+    color: var(--text-soft) !important;
+}
+
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table thead {
+    background-color: #f4f7fc;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f5f9ff;
+}
+
+.form-control,
+.form-select {
+    border-radius: 10px;
+    border: 1px solid var(--line-soft);
+    padding: 10px 14px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 0.2rem rgba(30, 63, 143, 0.16);
+}
+
+.alert {
+    border-radius: 10px;
+    border: 1px solid transparent;
+    box-shadow: 0 8px 20px rgba(18, 24, 38, 0.08);
+}
+
+@media (max-width: 768px) {
+    html {
+        font-size: 14px;
+    }
+
+    .sidebar {
+        min-height: auto;
+        box-shadow: none;
+    }
+
+    .sidebar .nav-link:hover {
+        transform: none;
+    }
+
+    #appSidebar {
+        position: sticky;
+        top: 0;
+        z-index: 1025;
+    }
+
+    #appSidebar .p-4 {
+        padding: 0.75rem !important;
+    }
+
+    #appSidebar h4 {
+        font-size: 1rem;
+        margin-bottom: 0.6rem !important;
+    }
+
+    #appSidebar .nav {
+        flex-direction: row !important;
+        flex-wrap: nowrap;
+        gap: 0.45rem;
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+    }
+
+    #appSidebar .nav-link {
+        margin: 0;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 999px;
+        white-space: nowrap;
+    }
+
+    #appSidebar hr {
+        display: none;
+    }
+
+    .sidebar-user-meta {
+        margin-top: 0.65rem !important;
+        padding-top: 0.65rem !important;
+    }
+
+    .sidebar-user-name,
+    .sidebar-user-email {
+        font-size: 0.78rem;
+    }
+
+    #mainContent .p-4 {
+        padding: 1rem !important;
+    }
+
+    .sidebar-toggle-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .stat-card h3,
+    .stat-card h4 {
+        font-size: clamp(1rem, 4vw, 1.2rem);
+    }
+
+    .stat-card .icon {
+        width: 38px;
+        height: 38px;
+        font-size: 18px;
+    }
+}
+
+.loading-spinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+.chart-container {
+    position: relative;
+    height: clamp(220px, 32vh, 320px);
+    margin-top: 20px;
+}
+
+.filter-card {
+    background-color: var(--bg-surface);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--line-soft);
+}
+
+.subscription-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.subscription-badge.active {
+    background-color: #d6f7e8;
+    color: #0f6d4c;
+}
+
+.subscription-badge.inactive {
+    background-color: #ffe2e2;
+    color: #b02a37;
+}
+
+.subscription-badge.canceled {
+    background-color: #fff4d6;
+    color: #8a6a16;
+}
+
+/* Evita corte de preço nos cards de assinatura. */
+.subscription-price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    line-height: 1.4;
+    margin-top: 0.2rem;
+    margin-bottom: 1rem;
+    overflow: visible;
+}
+
+.subscription-price-value {
+    font-family: "Manrope", "Segoe UI", sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 2.6vw, 2.35rem);
+    line-height: 1.2;
+    display: inline-block;
+    padding-top: 2px;
+    white-space: nowrap;
+}
+
+.subscription-price-period {
+    font-family: "Manrope", "Segoe UI", sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    opacity: 0.95;
+    white-space: nowrap;
+}
+
+.subscription-price-quarterly .subscription-price-value {
+    font-size: clamp(1.85rem, 2.2vw, 2.1rem);
+}
+
+
+.checkout-price {
+    line-height: 1.4;
+    overflow: visible;
+}
+
+.checkout-price-value {
+    font-family: "Manrope", "Segoe UI", sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 2.8vw, 2.4rem);
+    line-height: 1.22;
+    display: inline-block;
+    padding-top: 2px;
+}

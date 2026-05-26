@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Planos de Assinatura - App Motoristas{% endblock %}
+
+{% block content %}
+<div class="mb-5 text-center">
+    <h2><i class="bi bi-credit-card"></i> Escolha seu Plano</h2>
+    <p class="lead text-muted">Gerencie suas corridas de forma profissional</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card h-100 border-secondary shadow-sm">
+            <div class="card-body p-4 d-flex flex-column">
+                <h3 class="card-title">Gratuito</h3>
+                <h2 class="text-secondary mb-3 subscription-price">
+                    <span class="subscription-price-value">R$ 0,00</span>
+                    <span class="subscription-price-period text-muted">/mês</span>
+                </h2>
+                <p class="text-muted small mb-3">Ideal para começar</p>
+                <ul class="list-unstyled mb-4">
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Até 15 corridas por dia</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Dashboard básico</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Registro de corridas</li>
+                    <li class="mb-2"><i class="bi bi-x-circle text-danger"></i> Sem exportação de relatórios</li>
+                    <li class="mb-2"><i class="bi bi-x-circle text-danger"></i> Sem análise comparativa</li>
+                </ul>
+                {% if active_plan == 'free' %}
+                <div class="mt-auto">
+                    <button type="button" class="btn btn-outline-secondary w-100 py-2" disabled>Plano Atual</button>
+                    {% if rides_limit %}
+                    <p class="small text-muted mt-2 mb-0 text-center">Uso hoje (plano gratuito): {{ rides_used }}/{{ rides_limit }} corridas</p>
+                    {% endif %}
+                </div>
+                {% else %}
+                <a href="{{ url_for('dashboard.home') }}" class="btn btn-outline-secondary w-100 py-2 mt-auto">Continuar grátis</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card h-100 border-primary shadow">
+            <div class="card-body p-4 d-flex flex-column">
+                <h3 class="card-title">Mensal</h3>
+                <h2 class="text-primary mb-3 subscription-price">
+                    <span class="subscription-price-value">R$ 11,90</span>
+                    <span class="subscription-price-period text-muted">/mês</span>
+                </h2>
+                <p class="text-muted small mb-3">Plano popular</p>
+                <ul class="list-unstyled mb-4">
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Dashboard completo</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Corridas ilimitadas</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Estatísticas detalhadas</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Gráficos interativos</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Suporte por email</li>
+                </ul>
+                {% if active_plan == 'monthly' %}
+                <button type="button" class="btn btn-outline-primary w-100 py-2 mt-auto" disabled>Plano Atual</button>
+                {% elif not tem_assinatura %}
+                <form method="POST" action="{{ url_for('subscription.assinar', plano='monthly') }}" class="mt-auto">
+                    <button type="submit" class="btn btn-primary w-100 py-2">Assinar Mensal</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card h-100 border-warning shadow">
+            <div class="card-body p-4 d-flex flex-column">
+                <h3 class="card-title">Trimestral</h3>
+                <h2 class="text-warning mb-3 subscription-price subscription-price-quarterly">
+                    <span class="subscription-price-value">R$ 34,90</span>
+                    <span class="subscription-price-period text-muted">/3 meses</span>
+                </h2>
+                <p class="text-success small mb-3"><strong>Economize 2%</strong></p>
+                <ul class="list-unstyled mb-4">
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Tudo do plano mensal</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Exportação de relatórios</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Análises comparativas</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Suporte prioritário</li>
+                </ul>
+                {% if active_plan == 'quarterly' %}
+                <button type="button" class="btn btn-outline-warning w-100 py-2 mt-auto" disabled>Plano Atual</button>
+                {% elif not tem_assinatura %}
+                <form method="POST" action="{{ url_for('subscription.assinar', plano='quarterly') }}" class="mt-auto">
+                    <button type="submit" class="btn btn-warning w-100 py-2">Assinar Trimestral</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card h-100 border-success shadow position-relative">
+            <div class="position-absolute top-0 start-50 translate-middle">
+                <span class="badge bg-success">Melhor Oferta</span>
+            </div>
+            <div class="card-body p-4 d-flex flex-column">
+                <h3 class="card-title">Anual</h3>
+                <h2 class="text-success mb-3 subscription-price">
+                    <span class="subscription-price-value">R$ 99,90</span>
+                    <span class="subscription-price-period text-muted">/ano</span>
+                </h2>
+                <p class="text-success small mb-3"><strong>Economize 30%</strong></p>
+                <ul class="list-unstyled mb-4">
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Tudo dos planos anteriores</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Melhor custo-benefício</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Suporte VIP 24/7</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Novos recursos primeiro</li>
+                </ul>
+                {% if active_plan == 'annual' %}
+                <button type="button" class="btn btn-outline-success w-100 py-2 mt-auto" disabled>Plano Atual</button>
+                {% elif not tem_assinatura %}
+                <form method="POST" action="{{ url_for('subscription.assinar', plano='annual') }}" class="mt-auto">
+                    <button type="submit" class="btn btn-success w-100 py-2">Assinar Anual</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if tem_assinatura %}
+<div class="alert alert-info text-center mt-4">
+    <i class="bi bi-info-circle"></i> Você já possui uma assinatura ativa.
+    <a href="{{ url_for('subscription.gerenciar') }}">Gerenciar assinatura</a>
+</div>
+{% else %}
+<div class="text-center mt-4 text-muted">
+    <p><i class="bi bi-shield-check"></i> Pagamento seguro e protegido</p>
+    <p class="small">Cancele a qualquer momento. Sem taxas ocultas.</p>
+</div>
+{% endif %}
+{% endblock %}

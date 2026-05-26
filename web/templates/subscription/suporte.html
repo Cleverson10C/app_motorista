@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Suporte - App Motoristas{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2><i class="bi bi-headset"></i> Suporte</h2>
+    <p class="text-muted mb-0">
+        Nível disponível no seu plano:
+        {% if nivel_suporte_disponivel == 'vip' %}
+            <strong class="text-success">VIP 24/7</strong>
+        {% elif nivel_suporte_disponivel == 'priority' %}
+            <strong class="text-warning">Prioritário</strong>
+        {% else %}
+            <strong>Por email</strong>
+        {% endif %}
+    </p>
+</div>
+
+<div class="row">
+    <div class="col-lg-7 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Abrir novo chamado</h5>
+                <form method="POST" class="mt-3">
+                    <div class="mb-3">
+                        <label for="level" class="form-label">Canal de atendimento</label>
+                        <select class="form-select" id="level" name="level">
+                            <option value="email" {% if nivel_selecionado == 'email' %}selected{% endif %}>Email (SLA até 48h úteis)</option>
+                            {% if nivel_suporte_disponivel in ['priority', 'vip'] %}
+                            <option value="priority" {% if nivel_selecionado == 'priority' %}selected{% endif %}>Prioritário (SLA até 24h úteis)</option>
+                            {% endif %}
+                            {% if nivel_suporte_disponivel == 'vip' %}
+                            <option value="vip" {% if nivel_selecionado == 'vip' %}selected{% endif %}>VIP 24/7 (SLA até 4h)</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Assunto</label>
+                        <input type="text" class="form-control" id="subject" name="subject" maxlength="200" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send"></i> Enviar chamado
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Últimos chamados</h5>
+                {% if tickets %}
+                <div class="list-group list-group-flush mt-3">
+                    {% for ticket in tickets %}
+                    <div class="list-group-item px-0">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-1 fw-bold">{{ ticket.subject }}</p>
+                                <small class="text-muted">
+                                    {{ ticket.created_at.strftime('%d/%m/%Y %H:%M') }} | {{ ticket.level|upper }}
+                                </small>
+                            </div>
+                            {% if ticket.status == 'open' %}
+                            <span class="badge bg-warning">Aberto</span>
+                            {% elif ticket.status == 'in_progress' %}
+                            <span class="badge bg-info">Em andamento</span>
+                            {% else %}
+                            <span class="badge bg-success">Resolvido</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted mb-0 mt-3">Nenhum chamado aberto até agora.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

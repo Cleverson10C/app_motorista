@@ -1,0 +1,570 @@
+{% extends "base.html" %}
+
+{% block title %}Estatísticas Detalhadas - App Motoristas{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h2 class="mb-0"><i class="bi bi-bar-chart"></i> Estatísticas Detalhadas</h2>
+        {% if can_export %}
+        <a
+            class="btn btn-outline-primary"
+            href="{{ url_for('dashboard.exportar_estatisticas', periodo=periodo, platform=platform) }}"
+        >
+            <i class="bi bi-download"></i> Exportar Relatório (CSV)
+        </a>
+        {% else %}
+        <a class="btn btn-outline-secondary disabled" href="#" aria-disabled="true">
+            <i class="bi bi-lock"></i> Exportação (Trimestral+)
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+{% if history_limited %}
+<div class="alert alert-warning">
+    <i class="bi bi-lock"></i>
+    Seu plano gratuito mostra dados dos últimos {{ history_limit_days }} dias.
+    <a href="{{ url_for('subscription.planos') }}" class="alert-link">Desbloquear histórico completo</a>.
+</div>
+{% endif %}
+
+<!-- Filtros -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label for="periodo" class="form-label">Período</label>
+                <select class="form-select" id="periodo" name="periodo">
+                    <option value="7" {% if periodo == '7' %}selected{% endif %}>Últimos 7 dias</option>
+                    <option value="30" {% if periodo == '30' %}selected{% endif %}>Últimos 30 dias</option>
+                    <option value="90" {% if periodo == '90' %}selected{% endif %}>Últimos 3 meses</option>
+                    <option value="365" {% if periodo == '365' %}selected{% endif %}>Último ano</option>
+                    <option value="all" {% if periodo == 'all' %}selected{% endif %}>Todo período</option>
+                </select>
+            </div>
+            
+            <div class="col-md-4">
+                <label for="platform" class="form-label">Plataforma</label>
+                <select class="form-select" id="platform" name="platform">
+                    <option value="all" {% if platform == 'all' %}selected{% endif %}>Todas</option>
+                    <option value="Uber" {% if platform == 'Uber' %}selected{% endif %}>Uber</option>
+                    <option value="99" {% if platform == '99' %}selected{% endif %}>99</option>
+                    <option value="InDrive" {% if platform == 'InDrive' %}selected{% endif %}>InDrive</option>
+                    <option value="Cabify" {% if platform == 'Cabify' %}selected{% endif %}>Cabify</option>
+                </select>
+            </div>
+            
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel"></i> Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Cards de Resumo Geral -->
+<div class="row mb-4">
+    <div class="col-6 col-md-3 mb-3">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1">Total de Corridas</p>
+                        <h3 class="mb-0">{{ stats.total_corridas }}</h3>
+                    </div>
+                    <div class="icon bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-car-front"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-6 col-md-3 mb-3">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1">Distância Total</p>
+                        <h3 class="mb-0">{{ "%.1f"|format(stats.distancia_total) }} km</h3>
+                    </div>
+                    <div class="icon bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-signpost"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-6 col-md-3 mb-3">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1">Tempo Total</p>
+                        <h3 class="mb-0">{{ tempo_total_formatado }}</h3>
+                    </div>
+                    <div class="icon bg-warning bg-opacity-10 text-warning">
+                        <i class="bi bi-clock"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-6 col-md-3 mb-3">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1">Ticket Médio</p>
+                        <h3 class="mb-0">R$ {{ "%.2f"|format(stats.ticket_medio) }}</h3>
+                    </div>
+                    <div class="icon bg-info bg-opacity-10 text-info">
+                        <i class="bi bi-receipt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if can_compare and comparativo %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="bi bi-bar-chart-steps"></i> Análise Comparativa</h5>
+    </div>
+    <div class="card-body">
+        <p class="text-muted mb-3">Comparando os últimos {{ comparativo.dias_comparados }} dias com o período anterior.</p>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="p-3 border rounded">
+                    <p class="mb-1 text-muted">Variação de Receita Líquida</p>
+                    <h4 class="mb-1 {% if comparativo.receita_variacao_percentual >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        {{ "%.1f"|format(comparativo.receita_variacao_percentual) }}%
+                    </h4>
+                    <small class="text-muted">
+                        Atual: R$ {{ "%.2f"|format(comparativo.receita_atual) }} | Anterior: R$ {{ "%.2f"|format(comparativo.receita_anterior) }}
+                    </small>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="p-3 border rounded">
+                    <p class="mb-1 text-muted">Variação de Corridas</p>
+                    <h4 class="mb-1 {% if comparativo.corridas_variacao_percentual >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        {{ "%.1f"|format(comparativo.corridas_variacao_percentual) }}%
+                    </h4>
+                    <small class="text-muted">
+                        Atual: {{ comparativo.corridas_atual }} | Anterior: {{ comparativo.corridas_anterior }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% elif not can_compare %}
+<div class="card shadow-sm mb-4 border-warning-subtle">
+    <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h5 class="mb-1"><i class="bi bi-lock"></i> Análise Comparativa Bloqueada</h5>
+            <p class="text-muted mb-0">Disponível a partir do plano trimestral.</p>
+        </div>
+        <a href="{{ url_for('subscription.planos') }}" class="btn btn-warning">Fazer upgrade</a>
+    </div>
+</div>
+{% endif %}
+
+{% if can_advanced and insights_avancados %}
+<div class="card shadow-sm mb-4 border-success">
+    <div class="card-header bg-white">
+        <h5 class="mb-0 text-success"><i class="bi bi-stars"></i> Early Access (Plano Anual)</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <p class="text-muted mb-1">Projeção de Receita (30 dias)</p>
+                <h5 class="mb-0">R$ {{ "%.2f"|format(insights_avancados.projecao_receita_30_dias) }}</h5>
+            </div>
+            <div class="col-md-4 mb-3">
+                <p class="text-muted mb-1">Dia Mais Lucrativo</p>
+                <h5 class="mb-0">{{ insights_avancados.dia_mais_lucrativo }}</h5>
+            </div>
+            <div class="col-md-4 mb-3">
+                <p class="text-muted mb-1">Receita Média por Corrida</p>
+                <h5 class="mb-0">R$ {{ "%.2f"|format(insights_avancados.receita_media_por_corrida) }}</h5>
+            </div>
+        </div>
+    </div>
+</div>
+{% elif not can_advanced %}
+<div class="card shadow-sm mb-4 border-success-subtle">
+    <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            <h5 class="mb-1"><i class="bi bi-lock"></i> Insights Avançados Bloqueados</h5>
+            <p class="text-muted mb-0">Disponível no plano anual.</p>
+        </div>
+        <a href="{{ url_for('subscription.planos') }}" class="btn btn-success">Ver plano anual</a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Estatísticas por Plataforma -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Comparativo por Plataforma</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Plataforma</th>
+                        <th class="text-center">Corridas</th>
+                        <th class="text-end">Receita Bruta</th>
+                        <th class="text-end">Gorjetas</th>
+                        <th class="text-end">Taxas</th>
+                        <th class="text-end">Custos</th>
+                        <th class="text-end">Receita Líquida</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for plat in stats.por_plataforma %}
+                    <tr>
+                        <td><strong>{{ plat.platform }}</strong></td>
+                        <td class="text-center">{{ plat.total }}</td>
+                        <td class="text-end">R$ {{ "%.2f"|format(plat.receita_bruta) }}</td>
+                        <td class="text-end text-success">R$ {{ "%.2f"|format(plat.gorjetas) }}</td>
+                        <td class="text-end text-danger">R$ {{ "%.2f"|format(plat.taxas) }}</td>
+                        <td class="text-end text-warning">R$ {{ "%.2f"|format(plat.custos) }}</td>
+                        <td class="text-end"><strong>R$ {{ "%.2f"|format(plat.receita_liquida) }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="table-light">
+                    <tr>
+                        <th>TOTAL</th>
+                        <th class="text-center">{{ stats.total_corridas }}</th>
+                        <th class="text-end">R$ {{ "%.2f"|format(stats.receita_bruta_total) }}</th>
+                        <th class="text-end">R$ {{ "%.2f"|format(stats.gorjetas_total) }}</th>
+                        <th class="text-end">R$ {{ "%.2f"|format(stats.taxas_total) }}</th>
+                        <th class="text-end">R$ {{ "%.2f"|format(stats.custos_total) }}</th>
+                        <th class="text-end"><strong>R$ {{ "%.2f"|format(stats.receita_liquida_total) }}</strong></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficos -->
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Receita por Plataforma</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="chartPlataformas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Média de Corridas por Dia da Semana</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="chartDiaSemana"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if can_compare or can_advanced %}
+<div class="row">
+    {% if can_compare %}
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm border-primary-subtle">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Distribuição de Custos</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="chartCustos"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if can_advanced %}
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm border-success-subtle">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-clock"></i> Receita por Faixa de Horário</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="chartHorarios"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% else %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card shadow-sm border-secondary-subtle">
+            <div class="card-body text-center">
+                <h5 class="mb-2"><i class="bi bi-stars"></i> Recursos Premium</h5>
+                <p class="text-muted mb-3">Desbloqueie distribuição de custos, análises comparativas e insights por horário.</p>
+                <a href="{{ url_for('subscription.planos') }}" class="btn btn-primary">Comparar planos</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Médias e Indicadores -->
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-calculator"></i> Médias</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <td>Distância Média por Corrida:</td>
+                        <td class="text-end"><strong>{{ "%.1f"|format(stats.distancia_media) }} km</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Tempo Médio por Corrida:</td>
+                        <td class="text-end"><strong>{{ "%.0f"|format(stats.tempo_medio) }} min</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Receita Média por Corrida:</td>
+                        <td class="text-end"><strong>R$ {{ "%.2f"|format(stats.receita_media) }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Custo Médio por Corrida:</td>
+                        <td class="text-end"><strong>R$ {{ "%.2f"|format(stats.custo_medio) }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Lucro Médio por Corrida:</td>
+                        <td class="text-end"><strong>R$ {{ "%.2f"|format(stats.lucro_medio) }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Corridas por Dia:</td>
+                        <td class="text-end"><strong>{{ "%.1f"|format(stats.corridas_por_dia) }}</strong></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-percent"></i> Indicadores</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <td>Taxa da Plataforma (%):</td>
+                        <td class="text-end"><strong>{{ "%.1f"|format(stats.percentual_taxa) }}%</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Custos sobre Receita (%):</td>
+                        <td class="text-end"><strong>{{ "%.1f"|format(stats.percentual_custos) }}%</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Margem Líquida (%):</td>
+                        <td class="text-end"><strong>{{ "%.1f"|format(stats.margem_liquida) }}%</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Gorjetas sobre Receita (%):</td>
+                        <td class="text-end"><strong>{{ "%.1f"|format(stats.percentual_gorjetas) }}%</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Custo por Km:</td>
+                        <td class="text-end"><strong>R$ {{ "%.2f"|format(stats.custo_por_km) }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Receita por Km:</td>
+                        <td class="text-end"><strong>R$ {{ "%.2f"|format(stats.receita_por_km) }}</strong></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Gráfico de Receita por Plataforma
+const ctxPlataformas = document.getElementById('chartPlataformas');
+new Chart(ctxPlataformas, {
+    type: 'doughnut',
+    data: {
+        labels: {{ labels_plataformas | tojson }},
+        datasets: [{
+            label: 'Receita',
+            data: {{ dados_plataformas | tojson }},
+            backgroundColor: [
+                'rgba(30, 63, 143, 0.9)',
+                'rgba(47, 84, 179, 0.86)',
+                'rgba(255, 122, 26, 0.88)',
+                'rgba(255, 154, 77, 0.84)',
+                'rgba(93, 121, 197, 0.82)'
+            ],
+            borderColor: '#ffffff',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        },
+        cutout: '62%'
+    }
+});
+
+// Gráfico de Média de Corridas por Dia da Semana
+const ctxDiaSemana = document.getElementById('chartDiaSemana');
+new Chart(ctxDiaSemana, {
+    type: 'bar',
+    data: {
+        labels: {{ labels_dias | tojson }},
+        datasets: [{
+            label: 'Média de Corridas',
+            data: {{ dados_dias | tojson }},
+            backgroundColor: 'rgba(30, 63, 143, 0.85)',
+            borderColor: '#1e3f8f',
+            borderWidth: 1,
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return `${context.formattedValue} corridas/dia`;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 1
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                }
+            }
+        }
+    }
+});
+
+{% if can_compare %}
+const ctxCustos = document.getElementById('chartCustos');
+new Chart(ctxCustos, {
+    type: 'doughnut',
+    data: {
+        labels: {{ labels_custos | tojson }},
+        datasets: [{
+            label: 'Custos (R$)',
+            data: {{ dados_custos | tojson }},
+            backgroundColor: [
+                'rgba(30, 63, 143, 0.9)',
+                'rgba(255, 122, 26, 0.88)',
+                'rgba(235, 64, 52, 0.85)',
+                'rgba(245, 166, 35, 0.82)',
+                'rgba(93, 121, 197, 0.82)'
+            ],
+            borderColor: '#ffffff',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        },
+        cutout: '58%'
+    }
+});
+{% endif %}
+
+{% if can_advanced %}
+const ctxHorarios = document.getElementById('chartHorarios');
+new Chart(ctxHorarios, {
+    type: 'bar',
+    data: {
+        labels: {{ labels_horarios | tojson }},
+        datasets: [{
+            label: 'Receita Líquida (R$)',
+            data: {{ dados_horarios | tojson }},
+            backgroundColor: 'rgba(40, 167, 69, 0.82)',
+            borderColor: '#28a745',
+            borderWidth: 1,
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return `R$ ${context.formattedValue}`;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            },
+            x: {
+                grid: {
+                    display: false
+                }
+            }
+        }
+    }
+});
+{% endif %}
+</script>
+{% endblock %}
