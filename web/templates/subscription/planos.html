@@ -28,9 +28,6 @@
                 {% if active_plan == 'free' %}
                 <div class="mt-auto">
                     <button type="button" class="btn btn-outline-secondary w-100 py-2" disabled>Plano Atual</button>
-                    {% if rides_limit %}
-                    <p class="small text-muted mt-2 mb-0 text-center">Uso hoje (plano gratuito): {{ rides_used }}/{{ rides_limit }} corridas</p>
-                    {% endif %}
                 </div>
                 {% else %}
                 <a href="{{ url_for('dashboard.home') }}" class="btn btn-outline-secondary w-100 py-2 mt-auto">Continuar grátis</a>

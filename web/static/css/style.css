@@ -426,6 +426,7 @@ body.sidebar-collapsed #mainContent {
     margin-top: 0.2rem;
     margin-bottom: 1rem;
     overflow: visible;
+    flex-wrap: wrap;
 }
 
 .subscription-price-value {
@@ -444,7 +445,7 @@ body.sidebar-collapsed #mainContent {
     font-weight: 700;
     line-height: 1.2;
     opacity: 0.95;
-    white-space: nowrap;
+    white-space: normal;
 }
 
 .subscription-price-quarterly .subscription-price-value {
